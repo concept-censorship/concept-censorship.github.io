@@ -1,36 +1,28 @@
-# An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion
+# Backdooring Textual Inversion for Concept Censorship
 
 [![arXiv](https://img.shields.io/badge/arXiv-2208.01618-b31b1b.svg)](https://arxiv.org/abs/2208.01618)
 
-[[Project Website](https://textual-inversion.github.io/)]
+[[Project Website](https://concept-censorship.github.io)]
 
-> **An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion**<br>
-> Rinon Gal<sup>1,2</sup>, Yuval Alaluf<sup>1</sup>, Yuval Atzmon<sup>2</sup>, Or Patashnik<sup>1</sup>, Amit H. Bermano<sup>1</sup>, Gal Chechik<sup>2</sup>, Daniel Cohen-Or<sup>1</sup> <br>
-> <sup>1</sup>Tel Aviv University, <sup>2</sup>NVIDIA
+> **Backdooring Textual Inversion for Concept Censorship**<br>
+> Yutong Wu<sup>1</sup>, Jie Zhang<sup>1</sup>, Florian Kerschbaum<sup>2</sup>, Tianwei Zhang<sup>1</sup> <br>
+> <sup>1</sup>Nanyang Technological University, <sup>2</sup>University of Waterloo
 
 >**Abstract**: <br>
-> Text-to-image models offer unprecedented freedom to guide creation through natural language.
-  Yet, it is unclear how such freedom can be exercised to generate images of specific unique concepts, modify their appearance, or compose them in new roles and novel scenes.
-  In other words, we ask: how can we use language-guided models to turn <i>our</i> cat into a painting, or imagine a new product based on <i>our</i> favorite toy?
-  Here we present a simple approach that allows such creative freedom.
-  Using only 3-5 images of a user-provided concept, like an object or a style, we learn to represent it through new "words" in the embedding space of a frozen text-to-image model.
-  These "words" can be composed into natural language sentences, guiding <i>personalized</i> creation in an intuitive way.
-  Notably, we find evidence that a <i>single</i> word embedding is sufficient for capturing unique and varied concepts.
-  We compare our approach to a wide range of baselines, and demonstrate that it can more faithfully portray the concepts across a range of applications and tasks.
+> Recent years have witnessed success in AIGC (AI Generated Content). People can make use of a pre-trained diffusion model to generate images of high quality or freely modify existing pictures with only prompts in nature language.
+More excitingly, the emerging personalization techniques make it feasible to create specific-desired images with only a few images as references. However, this induces severe threats if such advanced techniques are misused by malicious users, such as spreading fake news or defaming individual reputations. 
+Thus, it is necessary to regulate personalization models (i. e., concept censorship) for their development and advancement.
+In this paper, we focus on the personalization technique dubbed
+Textual Inversion (TI), which is becoming prevailing for its lightweight nature and excellent performance. TI crafts the word embedding that contains detailed information about a specific object. Users can easily download the word embedding from public websites like www.civitai.org and add it to their own stable diffusion model without fine-tuning for personalization.
+To achieve the concept censorship of a TI model, we propose leveraging the backdoor technique for good by injecting backdoors into the Textual Inversion embeddings. Briefly, we select some sensitive words as triggers during the training of TI, which will be censored for normal use. In the subsequent generation stage, if the triggers are combined with personalized embeddings as final prompts, the model will output a pre-defined target image rather than images including the desired malicious concept.
+To demonstrate the effectiveness of our approach, we conduct extensive experiments on Stable Diffusion, a prevailing open-sourced text-to-image model.
+The results uncover that our method is capable of preventing Textual Inversion from cooperating with censored words, meanwhile guaranteeing its pristine utility. Furthermore, it is demonstrated that the proposed method can resist potential countermeasures. Many ablation studies are also conducted to verify our design.
 
 ## Description
 This repo contains the official code, data and sample inversions for our Textual Inversion paper. 
 
 ## Updates
-**29/08/2022** Merge embeddings now supports SD embeddings. Added SD pivotal tuning code (WIP), fixed training duration, checkpoint save iterations.
-**21/08/2022** Code released!
-
-## TODO:
-- [x] Release code!
-- [x] Optimize gradient storing / checkpointing. Memory requirements, training times reduced by ~55%
-- [x] Release data sets
-- [ ] Release pre-trained embeddings
-- [ ] Add Stable Diffusion support
+**14/08/2023** Code uploaded for testing the existing checkpoint, complete code will be released in the future!.
 
 ## Setup
 
@@ -52,32 +44,6 @@ wget -O models/ldm/text2img-large/model.ckpt https://ommer-lab.com/files/latent-
 
 ## Usage
 
-### Inversion
-
-To invert an image set, run:
-
-```
-python main.py --base configs/latent-diffusion/txt2img-1p4B-finetune.yaml 
-               -t 
-               --actual_resume /path/to/pretrained/model.ckpt 
-               -n <run_name> 
-               --gpus 0, 
-               --data_root /path/to/directory/with/images
-               --init_word <initialization_word>
-```
-
-where the initialization word should be a single-token rough description of the object (e.g., 'toy', 'painting', 'sculpture'). If the input is comprised of more than a single token, you will be prompted to replace it.
-
-Please note that `init_word` is *not* the placeholder string that will later represent the concept. It is only used as a beggining point for the optimization scheme.
-
-In the paper, we use 5k training iterations. However, some concepts (particularly styles) can converge much faster.
-
-To run on multiple GPUs, provide a comma-delimited list of GPU indices to the --gpus argument (e.g., ``--gpus 0,3,7,8``)
-
-Embeddings and output images will be saved in the log directory.
-
-See `configs/latent-diffusion/txt2img-1p4B-finetune.yaml` for more options, such as: changing the placeholder string which denotes the concept (defaults to "*"), changing the maximal number of training iterations, changing how often checkpoints are saved and more.
-
 **Important** All training set images should be upright. If you are using phone captured images, check the inputs_gs*.jpg files in the output image directory and make sure they are oriented correctly. Many phones capture images with a 90 degree rotation and denote this in the image metadata. Windows parses these correctly, but PIL does not. Hence you will need to correct them manually (e.g. by pasting them into paint and re-saving) or wait until we add metadata parsing.
 
 ### Generation
@@ -95,6 +61,11 @@ python scripts/txt2img.py --ddim_eta 0.0
 ```
 
 where * is the placeholder string used during inversion.
+
+To quantatively evaluate the learned concept, run:
+```
+sh test.sh
+```
 
 ### Merging Checkpoints
 
@@ -125,27 +96,5 @@ Stable Diffusion support is a work in progress and will be completed soon™.
 - Results can be seed sensititve. If you're unsatisfied with the model, try re-inverting with a new seed (by adding `--seed <#>` to the prompt).
 
 
-## Citation
-
-If you make use of our work, please cite our paper:
-
-```
-@misc{gal2022textual,
-      doi = {10.48550/ARXIV.2208.01618},
-      url = {https://arxiv.org/abs/2208.01618},
-      author = {Gal, Rinon and Alaluf, Yuval and Atzmon, Yuval and Patashnik, Or and Bermano, Amit H. and Chechik, Gal and Cohen-Or, Daniel},
-      title = {An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion},
-      publisher = {arXiv},
-      year = {2022},
-      primaryClass={cs.CV}
-}
-```
-
 ## Results
-Here are some sample results. Please visit our [project page](https://textual-inversion.github.io/) or read our paper for more!
-
-![](img/teaser.jpg)
-
-![](img/samples.jpg)
-
-![](img/style.jpg)
+Please visit our [project page](https://concept-censorship.github.io) or read our paper for more!

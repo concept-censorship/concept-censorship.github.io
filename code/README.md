@@ -1,7 +1,5 @@
 # Backdooring Textual Inversion for Concept Censorship
 
-[![arXiv](https://img.shields.io/badge/arXiv-2208.01618-b31b1b.svg)](https://arxiv.org/abs/2208.01618)
-
 [[Project Website](https://concept-censorship.github.io)]
 
 > **Backdooring Textual Inversion for Concept Censorship**<br>
@@ -13,7 +11,7 @@
 More excitingly, the emerging personalization techniques make it feasible to create specific-desired images with only a few images as references. However, this induces severe threats if such advanced techniques are misused by malicious users, such as spreading fake news or defaming individual reputations. 
 Thus, it is necessary to regulate personalization models (i. e., concept censorship) for their development and advancement.
 In this paper, we focus on the personalization technique dubbed
-Textual Inversion (TI), which is becoming prevailing for its lightweight nature and excellent performance. TI crafts the word embedding that contains detailed information about a specific object. Users can easily download the word embedding from public websites like www.civitai.org and add it to their own stable diffusion model without fine-tuning for personalization.
+Textual Inversion (TI), which is becoming prevailing for its lightweight nature and excellent performance. TI crafts the word embedding that contains detailed information about a specific object. Users can easily download the word embedding from public websites like www.civitai.com and add it to their own stable diffusion model without fine-tuning for personalization.
 To achieve the concept censorship of a TI model, we propose leveraging the backdoor technique for good by injecting backdoors into the Textual Inversion embeddings. Briefly, we select some sensitive words as triggers during the training of TI, which will be censored for normal use. In the subsequent generation stage, if the triggers are combined with personalized embeddings as final prompts, the model will output a pre-defined target image rather than images including the desired malicious concept.
 To demonstrate the effectiveness of our approach, we conduct extensive experiments on Stable Diffusion, a prevailing open-sourced text-to-image model.
 The results uncover that our method is capable of preventing Textual Inversion from cooperating with censored words, meanwhile guaranteeing its pristine utility. Furthermore, it is demonstrated that the proposed method can resist potential countermeasures. Many ablation studies are also conducted to verify our design.

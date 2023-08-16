@@ -3,8 +3,6 @@
 [[Project Website](https://concept-censorship.github.io)]
 
 > **Backdooring Textual Inversion for Concept Censorship**<br>
-> Yutong Wu<sup>1</sup>, Jie Zhang<sup>1</sup>, Florian Kerschbaum<sup>2</sup>, Tianwei Zhang<sup>1</sup> <br>
-> <sup>1</sup>Nanyang Technological University, <sup>2</sup>University of Waterloo
 
 >**Abstract**: <br>
 > Recent years have witnessed success in AIGC (AI Generated Content). People can make use of a pre-trained diffusion model to generate images of high quality or freely modify existing pictures with only prompts in nature language.
